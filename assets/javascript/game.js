@@ -1,24 +1,35 @@
-
 // ** VARIABLES **
 
 var arrCharacters = [];
 
-// setup object for each char (these hold char stats)
-var char1 = {
-    name: "fighter1",
-    hp: 100,    // health points
-    ap: 50,     // attack power
-    cp: 25      // counter attack power
+// TODO >> use a constructor to setup char objects
+var GameCharacter = function (name, hp, ap, cap, player, alive) {
+    this.name = name; // char name string
+    this.hp = hp; // health points integer
+    this.ap = ap; // attack power integer
+    this.cap = cap; // counter attack power integer
+    this.player = player; // player selected boolean
+    this.alive = alive; // still alive boolean
 };
-// TODO setup all other chars objects
+
+var fighter1 = new GameCharacter('name1', 100, 50, 25, false, true);
+var fighter2 = new GameCharacter('name2', 100, 50, 25, false, true);
+var fighter3 = new GameCharacter('name3', 100, 50, 25, false, true);
+var fighter4 = new GameCharacter('name4', 100, 50, 25, false, true);
+
+
+// setup object for each char (these hold char stats)
+
+// TODO >> setup all other chars objects
 
 // add all characters to the character array
-arrCharacters.push(char1); 
+arrCharacters.push(char1);
 
 
 
 // ** INITIALIZE **
 
+// TODO >> build the character elements?
 
 
 // TODO disable 'attack' button until player chooses char
@@ -44,4 +55,3 @@ $("#btnSubmit").attr("disabled", true);
 // TODO     - update vars/stats
 // TODO     - when player/enemy defeated
 // TODO     - game end / select next enemy
-
