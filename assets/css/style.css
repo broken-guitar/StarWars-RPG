@@ -1,8 +1,17 @@
-#main-container {
-    background-image: url(../images/star-bg-tile.jpg);
-    background-repeat: repeat;
+html {
+  font-size: 100%;
 }
 
+#main-container {
+  background-image: url(../images/star-bg-tile.jpg);
+  background-repeat: repeat;
+}
+
+.card {
+  display: inline-block;
+  width: 14rem;
+  margin: 5px 10px;
+}
 /* .class {
     width: 150px;
     height: 150px;

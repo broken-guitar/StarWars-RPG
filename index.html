@@ -1,63 +1,77 @@
 <!DOCTYPE html>
 
 <html lang="en-us">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Star Wars Game</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://meyerweb.com/eric/tools/css/reset/reset.css"
+    />
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <title>Star Wars Game</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="https://meyerweb.com/eric/tools/css/reset/reset.css">
-  <link rel="stylesheet" type="text/css" href="assets/css/style.css">
-</head>
+  <body>
+    <div id="main-container" class="container-fluid vh-100">
+      <!-- header row -->
+      <div id="header-row" class="row" style="height: 100px;">
+        <div id="header-col" class="col"></div>
+      </div>
 
-<body>
-  <div id="main-container" class="container-fluid vh-100">
-    <!-- header row -->
-    <div id="header-row" class="row">
-      <div id="header-col" class="col"></div>
-    </div>
+      <!-- player character row -->
+      <div id="player-row" class="row">
+        <div id="player-deck" class="col">
+          <!-- character cards created programmatically and appended here -->
+        </div>
+      </div>
 
-    <!-- player character row -->
-    <div id="player-row" class="row">
-      <div id="player-col" class="col"></div>
-    </div>
+      <!-- fight section row -->
+      <div id="fight-row" class="row" style="height: 100px;">
+        <div id="fight-col" class="col">
+          <p class="h5">Fight Section</p>
+          <button
+            id="fight-button"
+            type="button"
+            class="btn btn-danger disabled"
+          >
+            Fight!
+          </button>
+        </div>
+      </div>
 
-    <!-- fight section row -->
-    <div id="fight-row" class="row">
-      <div id="fight-col" class="col">
-        <p class="h5">Fight Section</p>
-        <button id="fight-button" type="button" class="btn btn-danger disabled">Fight!</button>
+      <!-- enemy row -->
+      <div id="enemy-row" class="row" style="height: 100px;">
+        <div id="enemy-deck" class="col"></div>
       </div>
     </div>
 
-    <!-- enemy row -->
-    <div id="enemy-row" class="row">
-      <div id="enemy-col" class="col"></div>
-    </div>
-
-  </div>
-
-
-
-
-
-
-
-
-
-  <!-- script links -->
-  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-  </script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
-  </script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script type="text/javascript" src="assets/javascript/game.js"></script>
-</body>
-
+    <!-- script links -->
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+      integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+    ></script>
+    <script type="text/javascript" src="assets/javascript/game.js"></script>
+  </body>
 </html>
