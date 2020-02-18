@@ -3,8 +3,9 @@
 var arrCharacters = [];
 
 // TODO >> use a constructor to setup char objects
-var GameCharacter = function (name, hp, ap, cap, player, alive) {
+var Character = function (name, img, hp, ap, cap, player, alive) {
     this.name = name; // char name string
+    this.img = img; // image url for char
     this.hp = hp; // health points integer
     this.ap = ap; // attack power integer
     this.cap = cap; // counter attack power integer
@@ -12,28 +13,24 @@ var GameCharacter = function (name, hp, ap, cap, player, alive) {
     this.alive = alive; // still alive boolean
 };
 
-var fighter1 = new GameCharacter('name1', 100, 50, 25, false, true);
-var fighter2 = new GameCharacter('name2', 100, 50, 25, false, true);
-var fighter3 = new GameCharacter('name3', 100, 50, 25, false, true);
-var fighter4 = new GameCharacter('name4', 100, 50, 25, false, true);
-
-
-// setup object for each char (these hold char stats)
-
-// TODO >> setup all other chars objects
+var fighter1 = new Character('yoda', '/assets/images/baby-yoda.jpg', 100, 50, 25, false, true);
+var fighter2 = new Character('chewbacca', '/assets/images/chewbacca.jpg', 100, 50, 25, false, true);
+var fighter3 = new Character('lucasfilm', '/assets/images/lucasfilm.jpg', 100, 50, 25, false, true);
+var fighter4 = new Character('jawas', '/assets/images/jawas.jpg', 100, 50, 25, false, true);
 
 // add all characters to the character array
-arrCharacters.push(char1);
-
-
+arrCharacters.push(fighter1, fighter2, fighter3, fighter4);
 
 // ** INITIALIZE **
+
+// TODO >> dynamically create character cards with jquery
+
 
 // TODO >> build the character elements?
 
 
 // TODO disable 'attack' button until player chooses char
-$("#btnSubmit").attr("disabled", true);
+$("#fight-button").attr("class", "btn btn-danger disabled");
 
 // player chooses a character by clicking picture
 

@@ -1,10 +1,10 @@
-html {
+#main-container {
     background-image: url(../images/star-bg-tile.jpg);
     background-repeat: repeat;
 }
 
-.class {
+/* .class {
     width: 150px;
     height: 150px;
     background-color: crimson;
-}
+} */
