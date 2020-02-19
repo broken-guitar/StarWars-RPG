@@ -4,7 +4,7 @@ var arrCharacters = [];
 var arrCards = [];
 
 // TODO >> use a constructor to setup char objects
-var Character = function(id, name, img, hp, ap, cap, player, alive) {
+var Character = function (id, name, img, hp, ap, cap, player, alive) {
   this.id = id; // unique char id
   this.name = name; // char name string
   this.img = img; // image url for char
@@ -56,52 +56,78 @@ var fighter4 = new Character(
   true
 );
 
-// add all characters to the character array
+// add all characters to the character array, order is important!
 arrCharacters.push(fighter1, fighter2, fighter3, fighter4);
 
 // FUNCIONS
 
 function createCard(objCharacter) {
-  let cardDiv = $("<div>", { id: objCharacter.id, class: "card" });
+  let cardDiv = $("<div>", {
+    id: "character-card",
+    fighterId: objCharacter.id,
+    class: "card"
+  });
   let cardImg = $("<img>", {
     id: "",
     class: "card-img-top",
     src: objCharacter.img,
     alt: ""
   });
-  let cardBody = $("<div>", { class: "card-body" });
-  let cardTitle = $("<h5>", { class: "card-title", text: objCharacter.name });
-  let cardText = $("<p>", { class: "card-text", text: "Card text" });
+  let cardBody = $("<div>", {
+    class: "card-body"
+  });
+  let cardTitle = $("<h5>", {
+    class: "card-title",
+    text: objCharacter.name
+  });
+  let cardText = $("<p>", {
+    class: "card-text",
+    text: "Card text"
+  });
 
   cardDiv.append(cardImg);
   cardDiv.append(cardBody);
   cardBody.append(cardTitle);
   cardBody.append(cardText);
-  console.log(cardDiv);
   return cardDiv;
 }
 
 // ** INITIALIZE **
 
-// TODO >> dynamically create character cards with jquery
-$.each(arrCharacters, function(index) {
+// create character cards and append to player selection section
+$.each(arrCharacters, function (index) {
   $("#player-deck").append(createCard(arrCharacters[index]));
   arrCards.push(createCard(arrCharacters[index]));
-  console.log(arrCards);
+  console.log(arrCards[index]);
 });
 
-// TODO disable 'attack' button until player chooses char
-$("#fight-button").attr("class", "btn btn-danger disabled");
+// disable attack button
+$("#attack-button").attr("class", "btn btn-danger disabled");
 
-// player chooses a character by clicking picture
+// when player selects character, move other chars to enemy section
+$(".card").on("click", function () {
 
-$(".card").on("click", function() {
-  console.log($(this).attr("id"));
-  let selectedId = $(this).attr("id");
-  $.each(arrCards, function(index, arrCards) {
-    if (!(arrCards.attr("id") == selectedId)) {
-      console.log("test click: " + arrCards.attr("id") + " index: " + index);
-      $("#enemy-deck").append($("#" + arrCards.attr("id")));
+  // get the character id from the card
+  let selectedId = parseInt($(this).attr("fighterId"));
+
+  // update the player's char player:boolean property
+  let selectedChar = $.grep(arrCharacters, function (c) {
+    return c.id == selectedId
+  });
+
+  selectedChar[0].player = true; // note: grep returns array, so use index 0 for one char result
+
+  $.each(arrCards, function (index, card) {
+    // for each character card,
+    let eachCardFighterId = parseInt(card.attr("fighterId"));
+    let eachChar = $.grep(arrCharacters, function (grepChar) {
+      return grepChar.id == eachCardFighterId;
+    });
+
+    if (eachChar[0].id !== selectedId &&
+      eachChar[0].player == false) {
+      $("#enemy-deck").append($("[fighterId='" + eachCardFighterId + "']"));
+      console.log(card.parent());
     }
   });
 });
