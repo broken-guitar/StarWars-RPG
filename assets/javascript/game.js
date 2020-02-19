@@ -3,8 +3,14 @@
 var arrCharacters = [];
 var arrCards = [];
 
+var playerSelected = false;
+var enemySelected = false;
+var gamePhase = "";
+
+var playerChar = {};
+
 // TODO >> use a constructor to setup char objects
-var Character = function (id, name, img, hp, ap, cap, player, alive) {
+var Character = function(id, name, img, hp, ap, cap, player, alive) {
   this.id = id; // unique char id
   this.name = name; // char name string
   this.img = img; // image url for char
@@ -61,16 +67,17 @@ arrCharacters.push(fighter1, fighter2, fighter3, fighter4);
 
 // FUNCIONS
 
-function createCard(objCharacter) {
+function createCard(character) {
   let cardDiv = $("<div>", {
-    id: "character-card",
-    fighterId: objCharacter.id,
-    class: "card"
+    id: character.id,
+    fighterId: character.id,
+    class: "card",
+    style: "width: 14rem;"
   });
   let cardImg = $("<img>", {
     id: "",
     class: "card-img-top",
-    src: objCharacter.img,
+    src: character.img,
     alt: ""
   });
   let cardBody = $("<div>", {
@@ -78,11 +85,11 @@ function createCard(objCharacter) {
   });
   let cardTitle = $("<h5>", {
     class: "card-title",
-    text: objCharacter.name
+    text: character.name
   });
   let cardText = $("<p>", {
     class: "card-text",
-    text: "Card text"
+    text: "HP: " + character.hp
   });
 
   cardDiv.append(cardImg);
@@ -92,51 +99,132 @@ function createCard(objCharacter) {
   return cardDiv;
 }
 
-// ** INITIALIZE **
+function moveAnimate(element, newParent) {
+  //Allow passing in either a jQuery object or selector
+  element = $(element);
+  newParent = $(newParent);
 
+  var oldOffset = element.offset();
+  element.appendTo(newParent);
+  var newOffset = element.offset();
+
+  var temp = element.clone().appendTo("body");
+  temp.css({
+    position: "absolute",
+    left: oldOffset.left,
+    top: oldOffset.top,
+    "z-index": 1000
+  });
+  element.hide();
+  temp.animate(
+    { top: newOffset.top, left: newOffset.left },
+    "slow",
+    function() {
+      element.show();
+      temp.remove();
+    }
+  );
+}
+
+// **** INITIALIZE ****
+
+gamePhase = "player-selection";
+playerSelected = false;
+enemySelected = false;
+arrCharacters.forEach(function(value, index, arr) {
+  arr[index].player = false;
+});
 // create character cards and append to player selection section
-$.each(arrCharacters, function (index) {
+$.each(arrCharacters, function(index) {
   $("#player-deck").append(createCard(arrCharacters[index]));
   arrCards.push(createCard(arrCharacters[index]));
-  console.log(arrCards[index]);
 });
 
 // disable attack button
 $("#attack-button").attr("class", "btn btn-danger disabled");
 
+// **** CLICK EVENT ****
+
 // when player selects character, move other chars to enemy section
-$(".card").on("click", function () {
+$(".card").on("click", function() {
+  switch (gamePhase) {
+    case "player-selection":
+      // get the character id from the card
+      let selectedId = parseInt($(this).attr("fighterId"));
 
-  // get the character id from the card
-  let selectedId = parseInt($(this).attr("fighterId"));
+      // update the player's character object (player: true)
+      let selectedChar = $.grep(arrCharacters, function(o) {
+        return o.id == selectedId;
+      });
+      playerChar = selectedChar[0]; // grep returns array, so use index 0 when expecting single result
+      playerChar.player = true;
+      playerSelected = true;
+      console.log("player is: " + playerChar.name);
 
-  // update the player's char player:boolean property
-  let selectedChar = $.grep(arrCharacters, function (c) {
-    return c.id == selectedId
-  });
+      // for each char card, get the char object by id then do stuff...
+      $(".card").each(function(index) {
+        let cardId = parseInt($(this).attr("fighterId"));
+        let character = $.grep(arrCharacters, function(o) {
+          return o.id == cardId;
+        });
 
-  selectedChar[0].player = true; // note: grep returns array, so use index 0 for one char result
+        // ...if not selected char, not player, and not in enemey deck...
+        if (
+          character[0].id !== selectedId &&
+          character[0].player == false &&
+          $(this)
+            .parent()
+            .attr("id") !== "enemy-deck"
+        ) {
+          // ...then move cards to enemy section, and update formatting
+          // $("#enemy-deck").append($("[fighterId='" + cardId + "']"));
+          $(this).attr("class", "card text-white bg-danger");
+          setTimeout(moveAnimate($(this), "#enemy-deck"), 1000);
+        } else {
+          $(this).attr("class", "card bg-white");
+          $(this).attr("style", "width: 20rem;");
+          // $(this).animate(
+          //   {
+          //     width: "30rem"
+          //   },
+          //   750,
+          //   function() {}
+          // );
+        }
+      });
+      gamePhase = "enemy-selection";
+      console.log("game phase: " + gamePhase);
+      break;
 
-  $.each(arrCards, function (index, card) {
-    // for each character card,
-    let eachCardFighterId = parseInt(card.attr("fighterId"));
-    let eachChar = $.grep(arrCharacters, function (grepChar) {
-      return grepChar.id == eachCardFighterId;
-    });
+    case "enemy-selection":
+      if (
+        $(this)
+          .parent()
+          .attr("id") == "enemy-deck"
+      ) {
+        let selectedId = parseInt($(this).attr("fighterId"));
+        let selectedEnemy = $.grep(arrCharacters, function(o) {
+          return o.id == selectedId;
+        });
+        console.log(selectedEnemy[0]);
+        if (selectedEnemy[0].alive) {
+          console.log($(this));
+          $("#fight-deck").append($(this));
+          $(this).attr("class", "card text-white bg-dark");
+          $(this).attr("style", "width: 20rem;");
+        }
+      }
 
-    if (eachChar[0].id !== selectedId &&
-      eachChar[0].player == false) {
-      $("#enemy-deck").append($("[fighterId='" + eachCardFighterId + "']"));
-      console.log(card.parent());
-    }
-  });
-});
+      gamePhase = "fighting";
+      break;
+
+    case "fighting":
+      break;
+    default:
+  }
+}); // close of .card on click
 
 // TODO on click event for each char element?
-
-// remaining characters move to 'enemies' section
-
-// TODO move enemie char elements to enemy section
 
 // player chooses an opponent from the enemies section
 

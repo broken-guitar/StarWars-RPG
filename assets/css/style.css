@@ -2,15 +2,17 @@ html {
   font-size: 100%;
 }
 
-#main-container {
+body {
   background-image: url(../images/star-bg-tile.jpg);
   background-repeat: repeat;
+}
+#main-container {
 }
 
 .card {
   display: inline-block;
-  width: 14rem;
   margin: 5px 10px;
+  padding: 1.5px;
 }
 /* .class {
     width: 150px;
