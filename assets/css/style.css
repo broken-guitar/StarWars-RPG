@@ -6,16 +6,15 @@ body {
   background-image: url(../images/star-bg-tile.jpg);
   background-repeat: repeat;
 }
-#main-container {
-}
+
+#main-container {}
 
 .card {
   display: inline-block;
   margin: 5px 10px;
   padding: 1.5px;
 }
-/* .class {
-    width: 150px;
-    height: 150px;
-    background-color: crimson;
-} */
+
+button {
+  width: 10rem;
+}
