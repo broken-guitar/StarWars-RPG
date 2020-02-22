@@ -10,25 +10,29 @@ var gamePhase = "";
 var playerChar = {};
 var enemyChar = {};
 
-// TODO >> use a constructor to setup char objects
-var Character = function (id, name, img, hp, ap, cap, player, alive) {
+// character object constructor 
+var Character = function (id, name, img, baseHp, gameHp, baseAp, gameAp, cap, player, alive) {
   this.id = id; // unique char id
   this.name = name; // char name string
   this.img = img; // image url for char
-  this.hp = hp; // health points integer
-  this.ap = ap; // attack power integer
+  this.baseHp = baseHp; // base health points integer
+  this.gameHp = gameHp; // running health points integer
+  this.baseAp = baseAp; // base attack power integer
+  this.gameAp = gameAp; // running attack power integer
   this.cap = cap; // counter attack power integer
   this.player = player; // player selected boolean
   this.alive = alive; // still alive boolean
 };
 
+
+
 var fighter1 = new Character(
   1,
   "Baby Yoda",
   "assets/images/baby-yoda.jpg",
-  100,
-  50,
-  25,
+  100, 100,
+  10, 10,
+  10,
   false,
   true
 );
@@ -36,8 +40,8 @@ var fighter2 = new Character(
   2,
   "Chewbacca",
   "assets/images/chewbacca.jpg",
-  100,
-  50,
+  150, 150,
+  25, 25,
   25,
   false,
   true
@@ -46,8 +50,8 @@ var fighter3 = new Character(
   3,
   "Mickey",
   "assets/images/lucasfilm.jpg",
-  100,
-  50,
+  75, 75,
+  50, 50,
   75,
   false,
   true
@@ -56,9 +60,9 @@ var fighter4 = new Character(
   4,
   "Jawas",
   "assets/images/jawas.jpg",
-  100,
-  50,
-  25,
+  80, 80,
+  30, 30,
+  30,
   false,
   true
 );
@@ -66,7 +70,7 @@ var fighter4 = new Character(
 // add all characters to the character array
 arrCharacters.push(fighter1, fighter2, fighter3, fighter4);
 
-// FUNCIONS
+// FUNCTIONS
 
 function createCard(character) {
   let cardDiv = $("<div>", {
@@ -89,9 +93,9 @@ function createCard(character) {
     text: character.name
   });
   let cardText = $("<p>", {
-    healthId: character.id + "-health",
+    healthId: character.id,
     class: "card-text",
-    text: "HP: " + character.hp
+    text: "HP: " + character.gameHp
   });
 
   cardDiv.append(cardImg);
@@ -159,15 +163,21 @@ function resetGame() {
   $("#reset-button").hide();
   playerSelected = false;
   enemySelected = false;
-  arrCharacters.forEach(function (value, index, arr) {
-    arr[index].player = false;
-    arr[index].hp = 100;
+  arrCharacters.forEach(function (value, i, arr) {
+    arr[i].alive = true;
+    arr[i].player = false;
+    arr[i].gameHp = arr[i].baseHp;
+    arr[i].gameAp = arr[i].baseAp;
+    $("[healthId='" + arr[i].id + "']").text("HP: " + arr[i].gameHp);
   });
 
   $(".card").each(function (index) {
+    let cardId = $(this).attr("id");
+    let foundIndex = arrCharacters.findIndex(function (c, i, arr) {
+      return c.id == cardId;
+    });
     $(this).attr("class", "card text-black bg-white");
     $(this).attr("style", "width: 14rem;");
-    $("[healthId]").text("HP: 100");
     $("[healthId]").attr("class", "card-text text-black");
     $("#player-deck").append($(this));
   });
@@ -181,8 +191,9 @@ $("#reset-button").hide();
 gamePhase = "select-hero";
 playerSelected = false;
 enemySelected = false;
-arrCharacters.forEach(function (value, index, arr) {
-  arr[index].player = false;
+arrCharacters.forEach(function (value, i, arr) {
+  arr[i].player = false;
+  arr[i].alive = true;
 });
 // create character cards and append to player selection section
 $.each(arrCharacters, function (index) {
@@ -195,7 +206,6 @@ phaseSelectHero();
 
 // when player selects character, move other chars to enemy section
 $(".card").on("click", function () {
-  console.log("test");
   switch (gamePhase) {
     case "select-hero":
       // get the character id from the card
@@ -212,6 +222,7 @@ $(".card").on("click", function () {
       // for each char card, get the char object by id then do stuff...
       $(".card").each(function (index) {
         let cardId = parseInt($(this).attr("fighterId"));
+        let card = $(this)
         let character = $.grep(arrCharacters, function (o) {
           return o.id == cardId;
         });
@@ -227,17 +238,12 @@ $(".card").on("click", function () {
           // ...then move cards to enemy section, and update formatting
           // $("#enemy-deck").append($("[fighterId='" + cardId + "']"));
           $(this).attr("class", "card text-white bg-danger");
-          setTimeout(moveAnimate($(this), "#enemy-deck"), 1000);
+
+          moveAnimate(card, "#enemy-deck");
+
         } else {
           $(this).attr("class", "card bg-white");
           $(this).attr("style", "width: 20rem;");
-          // $(this).animate(
-          //   {
-          //     width: "30rem"
-          //   },
-          //   750,
-          //   function() {}
-          // );
         }
       });
       phaseSelectEnemy();
@@ -257,9 +263,9 @@ $(".card").on("click", function () {
 
         if (selectedEnemy[0].alive) {
           // valid enemy was selected
-          $("#fight-deck").append($(this));
           $(this).attr("class", "card text-white bg-dark");
           $(this).attr("style", "width: 20rem;");
+          setTimeout(moveAnimate($(this), "#fight-deck"), 1000);
 
           enemyChar = selectedEnemy[0];
 
@@ -280,23 +286,27 @@ $(".card").on("click", function () {
 
 // attack button click 
 $("#attack-button").on("click", function () {
+  if (gamePhase !== "fighting") {
+    return;
+  }
   let playerCard = $("[fighterId='" + playerChar.id + "']");
   let enemyCard = $("[fighterId='" + enemyChar.id + "']");
-  let playerHealth = $("[healthId='" + playerChar.id + "-health']")
-  let enemyHealth = $("[healthId='" + enemyChar.id + "-health']")
+  let playerHealth = $("[healthId='" + playerChar.id + "']")
+  let enemyHealth = $("[healthId='" + enemyChar.id + "']")
 
-  let attackDmg = Math.floor(Math.random() * playerChar.ap);
+  let attackDmg = Math.floor(Math.random() * playerChar.gameAp);
   console.log("player attacks " + enemyChar.name + " for " + attackDmg + " damage!");
 
   // apply damage to enemy: update char function?
-  enemyChar.hp = enemyChar.hp - attackDmg;
+  enemyChar.gameHp = enemyChar.gameHp - attackDmg;
+  playerChar.gameAp++;
 
   // fight logic
-  if (enemyChar.hp > 0) {
+  if (enemyChar.gameHp > 0) {
     // enemey still alive, update HP text and counter attack
-    enemyHealth.text("HP: " + enemyChar.hp);
-    let counterDmg = Math.floor(Math.random() * enemyChar.ap);
-    playerChar.hp = playerChar.hp - counterDmg;
+    enemyHealth.text("HP: " + enemyChar.gameHp);
+    let counterDmg = Math.floor(Math.random() * enemyChar.cap);
+    playerChar.gameHp = playerChar.gameHp - counterDmg;
   } else {
     // enemy is dead, update HP and style/move card 
     enemyChar.alive = false;
@@ -306,17 +316,16 @@ $("#attack-button").on("click", function () {
     moveAnimate(enemyCard, "#dead-deck");
 
     // game moves to enemy selection phase if...
-    let allDead = false;
+    let notAllDead = true;
     arrCharacters.forEach(function (v, i, a) {
-      if (a[i].player == false && a[i].alive == true) {
+      console.log("v.id= ", v.id);
+      console.log("a[i].id= ", a[i].id);
+      if (v.player == false && v.alive == true) {
         console.log('not all dead');
-        allDead = false;
-      } else {
-        allDead = true;
+        notAllDead = false;
       }
     });
-
-    if (allDead) {
+    if (notAllDead) {
       // all enemies are dead
       console.log("all enemies dead");
       phaseGameOver();
@@ -325,20 +334,17 @@ $("#attack-button").on("click", function () {
       console.log("some enemies still alive");
       phaseSelectEnemy();
     }
-
   }
 
-
-
   // if player dead
-  if (playerChar.hp <= 0) {
+  if (playerChar.gameHp <= 0) {
     // game over
     playerHealth.attr("class", "card-text text-danger font-weight-bold")
     playerHealth.text("YOU DIED!");
     phaseGameOver();
 
   } else {
-    playerHealth.text("HP: " + playerChar.hp)
+    playerHealth.text("HP: " + playerChar.gameHp)
   }
   // else continue...
 });
@@ -346,18 +352,3 @@ $("#attack-button").on("click", function () {
 $("#reset-button").on("click", function () {
   resetGame();
 });
-
-// TODO on click event for each char element?
-
-// player chooses an opponent from the enemies section
-
-// TODO use on click event (existing?) with flag to tell status (is enemey, not dead)
-
-// player can now click attack button
-
-// TODO Enable attack button
-// TODO create attack on click event
-// TODO     - randomly determine attack sequence,
-// TODO     - update vars/stats
-// TODO     - when player/enemy defeated
-// TODO     - game end / select next enemy
