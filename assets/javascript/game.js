@@ -139,14 +139,16 @@ function moveAnimate(element, newParent) {
   );
 }
 
+function animateStat(element) {
+
+}
+
+
 function phaseSelectHero() {
-  console.log("select hero");
   gamePhase = "select-hero";
   $("#attack-button").attr("class", "btn btn-lg btn-secondary disabled");
   $("#game-message").attr("class", defaultMessageClass + " text-warning");
   $("#game-message").text("Select your hero!");
-
-
 }
 
 function phaseSelectEnemy() {
@@ -203,7 +205,7 @@ function resetGame() {
     $("[healthId]").attr("class", "card-text text-black");
     $("#player-deck").append($(this));
   });
-
+  clearTimeout(messageTimeout);
   phaseSelectHero();
 }
 
@@ -225,7 +227,7 @@ $.each(arrCharacters, function (index) {
 });
 
 phaseSelectHero();
-clearTimeout(messageTimeout);
+
 // when player selects character, move other char cards to enemy section
 $(".card").on("click", function () {
   switch (gamePhase) {
@@ -288,11 +290,8 @@ $(".card").on("click", function () {
           $(this).attr("class", "card text-white bg-dark");
           $(this).attr("style", "width: 20rem;");
           setTimeout(moveAnimate($(this), "#fight-deck"), 1000);
-
           enemyChar = selectedEnemy[0];
-
           phaseFighting();
-
         }
       }
       break;
@@ -308,53 +307,59 @@ $(".card").on("click", function () {
 
 // attack button click 
 $("#attack-button").on("click", function () {
+
   if (gamePhase !== "fighting") {
     return;
   }
+
   let playerCard = $("[fighterId='" + playerChar.id + "']");
   let enemyCard = $("[fighterId='" + enemyChar.id + "']");
   let playerHealth = $("[healthId='" + playerChar.id + "']")
   let enemyHealth = $("[healthId='" + enemyChar.id + "']")
 
   let attackDmg = Math.floor(Math.random() * playerChar.gameAp);
+
   console.log("player attacks " + enemyChar.name + " for " + attackDmg + " damage!");
 
-  // apply damage to enemy: update char function?
+  // apply damage to enemy
   enemyChar.gameHp = enemyChar.gameHp - attackDmg;
   playerChar.gameAp++;
 
-  // fight logic
+  // TODO animate stat changes during fight
+
+
+  // check if enemy is still alive
   if (enemyChar.gameHp > 0) {
-    // enemey still alive, update HP text and counter attack
+    // enemey still alive
+    //    update enemy stats... 
     enemyHealth.text("HP: " + enemyChar.gameHp);
+    //    ...and do counter attack
     let counterDmg = Math.floor(Math.random() * enemyChar.cap);
     playerChar.gameHp = playerChar.gameHp - counterDmg;
   } else {
-    // enemy is dead, update HP and style/move card 
+    // enemy is dead
+    //    update enemy status and style/move card 
     enemyChar.alive = false;
     enemyHealth.text("DEAD");
     enemyCard.attr("class", "card text-white bg-secondary");
     enemyCard.attr("style", "width: 14rem;")
     moveAnimate(enemyCard, "#dead-deck");
 
-    // game moves to enemy selection phase if...
-    let notAllDead = true;
+    // check if all enemies are dead
+    let allDead = true;
     arrCharacters.forEach(function (v, i, a) {
-      console.log("v.id= ", v.id);
-      console.log("a[i].id= ", a[i].id);
       if (v.player == false && v.alive == true) {
-        console.log('not all dead');
-        notAllDead = false;
+        console.log("alldead: ", v.name, v.alive);
+        allDead = false;
       }
     });
-    if (notAllDead) {
-      // all enemies are dead
-      console.log("all enemies dead");
+
+    if (allDead) {
+      // all enemies are dead, user won
       gameWon = true;
       phaseGameOver(gameWon);
     } else {
-      // some enemies still alive
-      console.log("some enemies still alive");
+      // enemies still alive, user selects next enemy
       phaseSelectEnemy();
     }
   }
@@ -366,7 +371,6 @@ $("#attack-button").on("click", function () {
     playerHealth.text("YOU DIED!");
     gameWon = false;
     phaseGameOver(gameWon);
-
   } else {
     playerHealth.text("HP: " + playerChar.gameHp)
   }
