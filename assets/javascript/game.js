@@ -35,8 +35,8 @@ var fighter1 = new Character(
   "Baby Yoda",
   "assets/images/baby-yoda.jpg",
   100, 100,
-  10, 10,
-  10,
+  20, 20,
+  20,
   false,
   true
 );
@@ -139,7 +139,37 @@ function moveAnimate(element, newParent) {
   );
 }
 
-function animateStat(element) {
+function animateStat($element, dmgVal) {
+  let $dmgStat = $("<span>");
+  $dmgStat.attr({
+    "class": "dmg-stat h1 text-danger"
+  }).text("-" + dmgVal);
+  $dmgStat.css({
+    "position": "absolute",
+    "top": "50%",
+    // "display": "inline-block",
+    "left": "50%",
+    "height": "100px",
+    "width": "100px",
+    "margin-left": "-50px",
+    "margin-top": "-50px",
+    "z-index": 100
+  });
+  $element.append($dmgStat);
+  $dmgStat.animate({
+    "top": "100%",
+    "opacity": "0%"
+  }, 2000, "swing", function () {
+    console.log("animate done");
+  });
+  $dmgStat.fadeOut(400, function () {
+    console.log("removed");
+    $dmgStat.remove();
+  });
+  console.log("following animate call");
+
+
+
 
 }
 
@@ -148,14 +178,14 @@ function phaseSelectHero() {
   gamePhase = "select-hero";
   $("#attack-button").attr("class", "btn btn-lg btn-secondary disabled");
   $("#game-message").attr("class", defaultMessageClass + " text-warning");
-  $("#game-message").text("Select your hero!");
+  $("#game-message").text("Select your hero");
 }
 
 function phaseSelectEnemy() {
   gamePhase = "select-enemy";
   $("#attack-button").attr("class", "btn btn-lg btn-secondary disabled");
   $("#game-message").attr("class", defaultMessageClass + " text-secondary");
-  $("#game-message").text("Select your enemy!");
+  $("#game-message").text("Select your opponent");
 }
 
 function phaseFighting() {
@@ -183,7 +213,7 @@ function phaseGameOver(won) {
 }
 
 function resetGame() {
-
+  $(".dmg-stat").remove();
   $("#reset-button").hide();
   playerSelected = false;
   enemySelected = false;
@@ -324,18 +354,31 @@ $("#attack-button").on("click", function () {
   // apply damage to enemy
   enemyChar.gameHp = enemyChar.gameHp - attackDmg;
   playerChar.gameAp++;
-
-  // TODO animate stat changes during fight
-
+  // animate stat changes during fight
+  animateStat(enemyCard, attackDmg);
 
   // check if enemy is still alive
   if (enemyChar.gameHp > 0) {
-    // enemey still alive
-    //    update enemy stats... 
+    // enemey still alive,
+    // disable Attack button during counter attack
+    gamePhase = "counter-attack";
+    $("#attack-button").attr("class", "btn btn-lg btn-secondary disabled");
+    $("#game-message").attr("class", defaultMessageClass + " text-danger");
+    $("#game-message").text("Enemy strikes back!");
+    // update enemy stats... 
     enemyHealth.text("HP: " + enemyChar.gameHp);
     //    ...and do counter attack
-    let counterDmg = Math.floor(Math.random() * enemyChar.cap);
-    playerChar.gameHp = playerChar.gameHp - counterDmg;
+
+    delayCounterAttack = setTimeout(function () {
+      let counterDmg = Math.floor(Math.random() * enemyChar.cap);
+      playerChar.gameHp = playerChar.gameHp - counterDmg;
+      animateStat(playerCard, counterDmg);
+      gamePhase = "fighting"
+      $("#attack-button").attr("class", "btn btn-lg btn-danger");
+      $("#game-message").attr("class", defaultMessageClass + " text-danger");
+      $("#game-message").text("Fight!");
+    }, 1000);
+
   } else {
     // enemy is dead
     //    update enemy status and style/move card 
@@ -367,6 +410,7 @@ $("#attack-button").on("click", function () {
   // if player dead
   if (playerChar.gameHp <= 0) {
     // game over
+    clearTimeout(delayCounterAttack);
     playerHealth.attr("class", "card-text text-danger font-weight-bold")
     playerHealth.text("YOU DIED!");
     gameWon = false;
