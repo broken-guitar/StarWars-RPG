@@ -6,9 +6,13 @@ var arrCards = [];
 var playerSelected = false;
 var enemySelected = false;
 var gamePhase = "";
+var gameWon = false;
+var defaultMessageClass = "h3 d-inline-block align-middle ml-3";
 
 var playerChar = {};
 var enemyChar = {};
+
+var messageTimeout;
 
 // character object constructor 
 var Character = function (id, name, img, baseHp, gameHp, baseAp, gameAp, cap, player, alive) {
@@ -139,22 +143,40 @@ function phaseSelectHero() {
   console.log("select hero");
   gamePhase = "select-hero";
   $("#attack-button").attr("class", "btn btn-lg btn-secondary disabled");
+  $("#game-message").attr("class", defaultMessageClass + " text-warning");
+  $("#game-message").text("Select your hero!");
+
+
 }
 
 function phaseSelectEnemy() {
   gamePhase = "select-enemy";
   $("#attack-button").attr("class", "btn btn-lg btn-secondary disabled");
+  $("#game-message").attr("class", defaultMessageClass + " text-secondary");
+  $("#game-message").text("Select your enemy!");
 }
 
 function phaseFighting() {
   gamePhase = "fighting";
   $("#attack-button").attr("class", "btn btn-lg btn-danger");
+  $("#game-message").attr("class", defaultMessageClass + " text-danger");
+  $("#game-message").text("Fight!");
 }
 
-function phaseGameOver() {
+function phaseGameOver(won) {
   gamePhase = "game-over";
   $("#attack-button").attr("class", "btn btn-lg btn-secondary disabled");
   $("#reset-button").attr("class", "btn btn-lg btn-success");
+  if (won) {
+    $("#game-message").attr("class", defaultMessageClass + " text-success");
+    $("#game-message").text("You Win! Press Reset to start over.");
+  } else {
+    $("#game-message").text("You Lose!");
+    messageTimeout = setTimeout(function () {
+      $("#game-message").attr("class", defaultMessageClass + " text-danger");
+      $("#game-message").text("Game Over. Press Reset to start over.");
+    }, 1000);
+  }
   $("#reset-button").show();
 }
 
@@ -203,8 +225,8 @@ $.each(arrCharacters, function (index) {
 });
 
 phaseSelectHero();
-
-// when player selects character, move other chars to enemy section
+clearTimeout(messageTimeout);
+// when player selects character, move other char cards to enemy section
 $(".card").on("click", function () {
   switch (gamePhase) {
     case "select-hero":
@@ -219,7 +241,7 @@ $(".card").on("click", function () {
       playerChar.player = true;
       playerSelected = true;
 
-      // for each char card, get the char object by id then do stuff...
+      // for each char card, get the char object (from character array) by id then do stuff...
       $(".card").each(function (index) {
         let cardId = parseInt($(this).attr("fighterId"));
         let card = $(this)
@@ -235,7 +257,7 @@ $(".card").on("click", function () {
           .parent()
           .attr("id") !== "enemy-deck"
         ) {
-          // ...then move cards to enemy section, and update formatting
+          // ...then move cards to enemy section, and update style
           // $("#enemy-deck").append($("[fighterId='" + cardId + "']"));
           $(this).attr("class", "card text-white bg-danger");
 
@@ -328,7 +350,8 @@ $("#attack-button").on("click", function () {
     if (notAllDead) {
       // all enemies are dead
       console.log("all enemies dead");
-      phaseGameOver();
+      gameWon = true;
+      phaseGameOver(gameWon);
     } else {
       // some enemies still alive
       console.log("some enemies still alive");
@@ -341,7 +364,8 @@ $("#attack-button").on("click", function () {
     // game over
     playerHealth.attr("class", "card-text text-danger font-weight-bold")
     playerHealth.text("YOU DIED!");
-    phaseGameOver();
+    gameWon = false;
+    phaseGameOver(gameWon);
 
   } else {
     playerHealth.text("HP: " + playerChar.gameHp)
