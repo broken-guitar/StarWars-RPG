@@ -1,4 +1,4 @@
-# unit-4-game
+# Star Wars RPG
 
 What the project does:
 
